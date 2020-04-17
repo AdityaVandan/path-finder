@@ -50,24 +50,16 @@ export default class Grid extends Component{
     }
     tdClickHandler=(key)=>{
         console.log(key);        
+        if(key==this.state.src.key || key==this.state.dst.key) return;
         this.setState(prevState => {
             //console.log("grid");
             let state = Object.assign({}, prevState);  // creating copy of state variable jasper
             console.log(state.cells[key].state,'sdc',OBSTRUCTION);
-            // if(state.cells[key].state==OBSTRUCTION)
-            // {
-            //     state.cells[key].state=UNVISITED;                   // update the name property, assign a new value                 
-            //     state.cells[key].className=cssClasses.unvisited;
-            // }
-            // else
-            // {
                 state.cells[key].state=OBSTRUCTION;                   // update the name property, assign a new value                 
                 state.cells[key].className=cssClasses.obstruction;
-            // }
             return {state};
         });
     }
-    tdClickedHandler=(key)=>{}
     componentWillReceiveProps(nextProps) {
         console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
         this.setState({title: nextProps.title})
