@@ -1,0 +1,47 @@
+.obstruction{
+  animation-name: obstructionAnimation;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes obstructionAnimation {
+  0% {
+    transform: scale(.3);
+    background-color: black;
+  }
+
+  50% {
+    transform: scale(1.2);
+    background-color: black;
+  }
+
+  100% {
+    transform: scale(1.0);
+    background-color: gray;
+  }
+}
+
+  table
+  {
+    border:1px solid black;
+    border-collapse: collapse;
+  }
+  td,th{
+    width:25px;
+    height:25px;
+    border:1px solid gray;
+    border-collapse: collapse;
+  }
+
+  .unvisited{
+    width:25px;
+    height:25px;
+    background-color: white;
+    border:1px dotted gray;
+    border-collapse: collapse;
+  }
