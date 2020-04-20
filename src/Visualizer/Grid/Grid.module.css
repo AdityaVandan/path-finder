@@ -26,6 +26,74 @@
   }
 }
 
+
+.visited{
+  animation-name: visitedAnimation;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes visitedAnimation {
+  0% {
+    transform: scale(.3);
+    background-color: teal;
+  }
+
+  50% {
+    transform: scale(1.2);
+    background-color: lightseagreen;
+  }
+
+  100% {
+    transform: scale(1.0);
+    background-color: green;
+  }
+}
+
+.path{
+  animation-name: pathAnimation;
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes pathAnimation {
+  0% {
+    transform: scale(.3);
+    background-color: rgb(33, 119, 177);
+  }
+
+  50% {
+    transform: scale(1.2);
+    background-color: rgb(33, 119, 177);
+  }
+
+  100% {
+    transform: scale(1.0);
+    background-color: rgb(33, 119, 177);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
   table
   {
     border:1px solid black;

@@ -1,74 +1,67 @@
 import React, {Component} from 'react';
 import cssClasses from './Grid.module.css';
-import { UNVISITED,VISITED,VISITING,OBSTRUCTION } from './GRID_CONSTANTS';
+import Toolbar from '../Toolbar/Toolbar';
+import Legend from '../Legend/Legend';
+import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW } from './GRID_CONSTANTS';
+import { breadthFirstSearch } from '../algorithms/bfs';
+import { recursiveMaze } from '../algorithms/recursiveMaze';
+import { createBoard } from './Helper';
 export default class Grid extends Component{
     constructor(props){
         super(props);
-        console.log("Grid Component Got created");
         this.state={title: 'Dummy Algorithm',
+        currentAlgorithm:'',
+        currentAlgrithmKey:-1,
+        algorithms:['Breadth-First-Search','Depth-First-Search','Dijkstra'],
+        mazes:['A','B','C'],
         cellsLoaded:false
     };
     }
     componentDidMount(){
-        console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
         this.populateDS();
-        console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');    
     }
     populateDS=()=>{
-        let board=[];
-        let cells={};
-        let row,x;
-        for(let i=0;i<20;i++)
-        {
-            row=[];
-            for(let j=0;j<50;j++)
-            {
-                x={
-                   state: UNVISITED,
-                   key: i+'-'+j,
-                   className: 'cssClasses.unvisited'
-                };
-                cells[x.key]=x;
-                row.push(x);
-            }
-            board.push(row);
-        }
+        let result=createBoard();
+        let board,cells;
+        board=result[0];
+        cells=result[1];
         this.setState({
             ...this.state,
             grid:board,
             cells:cells,
-            src:board[3][5],
-            dst:board[9][19]
+            src:board[0][0],
+            dst:board[5][5]
         },()=>{
             this.setState({
                 ...this.state,
                 cellsLoaded:true,
                 cells:cells
             });
-            console.log(this.state);
         });
     }
     tdClickHandler=(key)=>{
-        console.log(key);        
-        if(key==this.state.src.key || key==this.state.dst.key) return;
+        if(key===this.state.src.key || key===this.state.dst.key) return;
+        let cellState=this.state.cells[key].state;
         this.setState(prevState => {
-            //console.log("grid");
             let state = Object.assign({}, prevState);  // creating copy of state variable jasper
-            console.log(state.cells[key].state,'sdc',OBSTRUCTION);
-                state.cells[key].state=OBSTRUCTION;                   // update the name property, assign a new value                 
-                state.cells[key].className=cssClasses.obstruction;
+                state.cells[key].state=cellState!==OBSTRUCTION?OBSTRUCTION:UNVISITED;                   // update the name property, assign a new value                 
+                //state.cells[key].className=cssClasses.obstruction;
             return {state};
         });
+        if(cellState!==OBSTRUCTION) document.getElementById(key).className=cssClasses.obstruction;
+        else document.getElementById(key).className=cssClasses.unvisited;
     }
     componentWillReceiveProps(nextProps) {
-        console.log('^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^');
+        console.log('^^^^^^^^^%^^^^^^^^^^^^^^^^^^^^^^^^^');
         this.setState({title: nextProps.title})
       }
 
     render()
     {
-        const {title}=this.props;
         return (
+            <div>
+        <Toolbar algorithms={this.state.algorithms} mazes={this.state.mazes} mazeHandler={this.selectMazeHandler} algorithmHandler={this.selectAlgorithmHandler} />
+        <Legend />
         <div className="card card-block">
             <h4 className="card-title"><b>title</b></h4>
 
@@ -85,9 +78,9 @@ export default class Grid extends Component{
                             <tr key={index}>
                             {row.map((cell,index)=>{
                                 return (
-                                <td key={cell.key} className={cell.className} onMouseDownCapture={this.tdClickHandler.bind(this,cell.key)}  onDrag={this.tdClickHandler.bind(this,cell.key)}>
-                                    {this.state.src.key==cell.key?<i class="fas fa-male"></i>:null}
-                                    {this.state.dst.key==cell.key?<i class="fa fa-flag"  aria-hidden="true"></i>:null}</td>
+                                <td id={cell.key} key={cell.key} className={cell.state===UNVISITED?cssClasses.unvisited:cell.state===VISITED?cssClasses.visited:cell.state===OBSTRUCTION?cssClasses.obstruction:cell.state==PATH?cssClasses.path:null } onMouseDownCapture={this.tdClickHandler.bind(this,cell.key)}  onDrag={this.tdClickHandler.bind(this,cell.key)}>
+                                    {this.state.src.key===cell.key?<i className="fas fa-female"></i>:null}
+                                    {this.state.dst.key===cell.key?<i className="fa fa-flag"  aria-hidden="true"></i>:null}</td>
                                 )
                             })}
 
@@ -96,10 +89,143 @@ export default class Grid extends Component{
                     }):<tr><td>Loading</td></tr>}
                 </tbody>
             </table>
-            <div>cfsd
+            <div>cfsd<button className="btn" onClick={this.bfs}>Breadth First Search</button>
+            <button className='btn' onClick={this.clearBoardHandler.bind(this,false)}>clear</button>
+            <button className='btn' onClick={this.getRecursieMaze}>recursiveMaze</button>
                 </div>
             </div>
-        </div>        
+        </div>   
+        </div>     
         );
     }
+
+
+    selectAlgorithmHandler=(key)=>{
+        this.setState({
+            ...this.state,
+            currentAlgorithm:this.state.algorithms[key],
+            currentAlgorithmKey:key
+        });
+        
+    }
+    selectMazeHandler=(key)=>{
+        this.setState({
+            ...this.state,
+            currentMaze:this.state.mazes[key],
+            currentMazeKey:key
+        });
+    }
+    clearBoardHandler=(leaveObstruction)=>{
+        let key,grid,cells,row,x;
+        let board;
+        grid=[];
+        for(var i=0;i<MAX_ROW;i++)
+        {
+            row=[];
+            for(var j=0;j<MAX_COLUMN;j++)
+            {
+                document.getElementById(i+'-'+j).className=cssClasses.unvisited;
+                if(leaveObstruction)
+                {
+                    if(this.state.cells[i+'-'+j].state===OBSTRUCTION) 
+                    {
+                        //console.log(i+'-'+j,'obstruction');
+                        this.setState(this.updateCellState(i+'-'+j,OBSTRUCTION,cssClasses.obstruction));
+                        document.getElementById(i+'-'+j).className=cssClasses.obstruction;
+                    }
+                    else 
+                    {
+                        //console.log(i+'-'+j,'no-obstruction');
+                        this.setState(this.updateCellState(i+'-'+j,UNVISITED,cssClasses.unvisited));
+                    }
+                }
+                else this.setState(this.updateCellState(i+'-'+j,UNVISITED,cssClasses.unvisited));
+
+            }
+        }
+        console.log(this.state);
+    }
+    updateCellState=(key,cellState,cssClass)=>{
+        return (prevState)=>{
+            let state = Object.assign({}, prevState);  // creating copy of state variable jasper
+            state.cells[key].state=cellState;                   // update the name property, assign a new value                 
+            //state.cells[key].className=cssClass;
+            return {state};
+            }
+    }
+    getRecursieMaze=()=>
+    {
+        let currentCell;
+        this.clearBoardHandler(false);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let result=recursiveMaze(board,this.state.src,this.state.dst);
+        board=result[0];
+        let visualQueue=result[1];
+        let grid=result[2];
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0)
+            {
+               this.setState({
+                    ...this.state,
+                    cells:board,
+                    src:board[this.state.src.key],
+                    dst:board[this.state.dst.key],
+                    grid:grid
+                },()=>{});
+                 
+                clearInterval(inter);
+            }
+            else{
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.obstruction;
+            }
+        },100);
+
+    }
+    bfs=()=>{
+        this.clearBoardHandler(true);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let src=board[this.state.src.key];
+        let dst=board[this.state.dst.key];
+        let currentCell,visualQueue,path,grid;
+        let result=breadthFirstSearch(src,board,dst);
+        visualQueue=JSON.parse(JSON.stringify(result[0]));
+        path=JSON.parse(JSON.stringify(result[1]));
+        grid=JSON.parse(JSON.stringify(result[2]));
+        //let stateCells=visualQueue.concat(path);
+        let afterUpdate=()=>{
+            // console.log('src',src);
+            // console.log('dst',dst);
+            // console.log('board',board);
+            // console.log('state',this.state);
+            // console.log('grid',grid);
+        }
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0 && path.length===0) 
+            {
+                // this.setState({
+                //     ...this.state,
+                //     cells:board,
+                //     src:board[src.key],
+                //     dst:board[dst.key],
+                //     grid:grid
+                // },afterUpdate);
+                clearInterval(inter);
+            }
+            else if(visualQueue.length!==0)
+            {
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.visited;
+            }
+            else
+            {
+                currentCell=board[path.pop()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.path;
+            }
+        },100);
+    }
+
 }
