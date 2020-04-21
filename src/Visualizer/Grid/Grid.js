@@ -5,6 +5,7 @@ import Legend from '../Legend/Legend';
 import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW } from './GRID_CONSTANTS';
 import { breadthFirstSearch } from '../algorithms/bfs';
 import { recursiveMaze } from '../algorithms/recursiveMaze';
+import { dfsMaze } from '../algorithms/dfsMaze';
 import { createBoard } from './Helper';
 export default class Grid extends Component{
     constructor(props){
@@ -30,7 +31,7 @@ export default class Grid extends Component{
             grid:board,
             cells:cells,
             src:board[0][0],
-            dst:board[5][5]
+            dst:board[6][5]
         },()=>{
             this.setState({
                 ...this.state,
@@ -92,6 +93,9 @@ export default class Grid extends Component{
             <div>cfsd<button className="btn" onClick={this.bfs}>Breadth First Search</button>
             <button className='btn' onClick={this.clearBoardHandler.bind(this,false)}>clear</button>
             <button className='btn' onClick={this.getRecursieMaze}>recursiveMaze</button>
+            <button className='btn' onClick={this.getDFSMaze}>DFSMaze</button>
+            <br></br>
+            <textarea id='testingTextArea'></textarea>
                 </div>
             </div>
         </div>   
@@ -182,6 +186,34 @@ export default class Grid extends Component{
             }
         },100);
 
+    }
+    getDFSMaze=()=>{
+        let currentCell;
+        this.clearBoardHandler(false);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let result=dfsMaze(board,this.state.src,this.state.dst);
+        board=result[0];
+        let visualQueue=result[1];
+        let grid=result[2];
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0)
+            {
+               this.setState({
+                    ...this.state,
+                    cells:board,
+                    src:board[this.state.src.key],
+                    dst:board[this.state.dst.key],
+                    grid:grid
+                },()=>{});
+                 
+                clearInterval(inter);
+            }
+            else{
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.obstruction;
+            }
+        },100);
     }
     bfs=()=>{
         this.clearBoardHandler(true);
