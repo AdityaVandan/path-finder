@@ -4,9 +4,10 @@ import Toolbar from '../Toolbar/Toolbar';
 import Legend from '../Legend/Legend';
 import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW } from './GRID_CONSTANTS';
 import { breadthFirstSearch } from '../algorithms/bfs';
+import { depthFirstSearch } from '../algorithms/dfs';
 import { recursiveMaze } from '../algorithms/recursiveMaze';
 import { dfsMaze } from '../algorithms/dfsMaze';
-import { createBoard } from './Helper';
+import { createBoard,createClearedBoard } from './Helper';
 export default class Grid extends Component{
     constructor(props){
         super(props);
@@ -94,6 +95,7 @@ export default class Grid extends Component{
             <button className='btn' onClick={this.clearBoardHandler.bind(this,false)}>clear</button>
             <button className='btn' onClick={this.getRecursieMaze}>recursiveMaze</button>
             <button className='btn' onClick={this.getDFSMaze}>DFSMaze</button>
+            <button className='btn' onClick={this.dfs}>DFS</button>
             <br></br>
             <textarea id='testingTextArea'></textarea>
                 </div>
@@ -144,19 +146,20 @@ export default class Grid extends Component{
                     }
                 }
                 else this.setState(this.updateCellState(i+'-'+j,UNVISITED,cssClasses.unvisited));
-
+        
             }
         }
         console.log(this.state);
-    }
-    updateCellState=(key,cellState,cssClass)=>{
+        }
+        updateCellState=(key,cellState,cssClass)=>{
         return (prevState)=>{
             let state = Object.assign({}, prevState);  // creating copy of state variable jasper
             state.cells[key].state=cellState;                   // update the name property, assign a new value                 
             //state.cells[key].className=cssClass;
             return {state};
             }
-    }
+        }
+        
     getRecursieMaze=()=>
     {
         let currentCell;
@@ -259,5 +262,54 @@ export default class Grid extends Component{
             }
         },100);
     }
+
+    dfs=()=>{
+        this.clearBoardHandler(true);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let src=board[this.state.src.key];
+        let dst=board[this.state.dst.key];
+        let currentCell,visualQueue,path,grid;
+        let result=depthFirstSearch(src,board,dst);
+        visualQueue=JSON.parse(JSON.stringify(result[0]));
+        path=JSON.parse(JSON.stringify(result[1]));
+        grid=JSON.parse(JSON.stringify(result[2]));
+        //let stateCells=visualQueue.concat(path);
+        let afterUpdate=()=>{
+            // console.log('src',src);
+            // console.log('dst',dst);
+            // console.log('board',board);
+            // console.log('state',this.state);
+            // console.log('grid',grid);
+        }
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0 && path.length===0) 
+            {
+                // this.setState({
+                //     ...this.state,
+                //     cells:board,
+                //     src:board[src.key],
+                //     dst:board[dst.key],
+                //     grid:grid
+                // },afterUpdate);
+                clearInterval(inter);
+            }
+            else if(visualQueue.length!==0)
+            {
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.visited;
+            }
+            else
+            {
+                currentCell=board[path.pop()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.path;
+            }
+        },100);
+    }
+
+
+
+
 
 }

@@ -16,10 +16,10 @@ export function recursiveMaze(board,src,dst)
             if(p%2===0 && q%2===0)
             {
                 strKey=p+'-'+q;
-                if(src.key===strKey || dst.key===strKey) continue;
+                //if(src.key===strKey || dst.key===strKey) continue;
                 //board[strKey].state=OBSTRUCTION
                 //board[strKey].className='cssClasses.obstruction';
-                addToQueue(p,q,board,visualQueue);
+                addToQueue(p,q,board,visualQueue,src,dst);
             }
         }
     }    
@@ -32,9 +32,10 @@ export function recursiveMaze(board,src,dst)
     result=[board,visualQueue,grid];
     return result;
 }
-function addToQueue(i,j,board,visualQueue)
+function addToQueue(i,j,board,visualQueue,src,dst)
 {
 let key=i+'-'+j;
+if(key==src.key || key==dst.key) return;
 board[key].state=OBSTRUCTION;
 visualQueue.push(key);
 //board[key].className='cssClasses.obstruction';
@@ -52,15 +53,15 @@ for(var p=0;p<MAX_ROW;p++)
         {
             num=(Math.random()*10);
             if(num>=5){
-                if(q+1<MAX_COLUMN) addToQueue(p,q+1,board,visualQueue);
+                if(q+1<MAX_COLUMN) addToQueue(p,q+1,board,visualQueue,src,dst);
                 num=(Math.random()*10);
                 if(num>=5){
-                    if(p+1<MAX_ROW) addToQueue(p+1,q,board,visualQueue);
+                    if(p+1<MAX_ROW) addToQueue(p+1,q,board,visualQueue,src,dst);
                 }    
             }
             else
             {
-                if(p+1<MAX_ROW) addToQueue(p+1,q,board,visualQueue);
+                if(p+1<MAX_ROW) addToQueue(p+1,q,board,visualQueue,src,dst);
             }
         }
     }
