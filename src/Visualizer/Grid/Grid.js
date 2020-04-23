@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import cssClasses from './Grid.module.css';
+import NavigationBar from '../NavigationBar/NavigationBar';
 import Toolbar from '../Toolbar/Toolbar';
 import Legend from '../Legend/Legend';
-import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW } from './GRID_CONSTANTS';
+import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW,startX,startY,endX,endY } from './GRID_CONSTANTS';
 import { breadthFirstSearch } from '../algorithms/bfs';
 import { depthFirstSearch } from '../algorithms/dfs';
 import { recursiveMaze } from '../algorithms/recursiveMaze';
@@ -13,10 +14,12 @@ export default class Grid extends Component{
         super(props);
         this.state={title: 'Dummy Algorithm',
         currentAlgorithm:'',
+        disableAll:false,
         currentAlgrithmKey:-1,
-        algorithms:['Breadth-First-Search','Depth-First-Search','Dijkstra'],
-        mazes:['A','B','C'],
-        cellsLoaded:false
+        algorithms:['BST','DFS','A*','Dijkstra'],
+        mazes:['DFS Maze','B','Random Recursion'],
+        cellsLoaded:false,
+
     };
     }
     componentDidMount(){
@@ -27,22 +30,25 @@ export default class Grid extends Component{
         let board,cells;
         board=result[0];
         cells=result[1];
+        // let src=board[startX][startY];
+        // let dst=board[endX][endY];
         this.setState({
             ...this.state,
             grid:board,
             cells:cells,
-            src:board[0][0],
-            dst:board[6][5]
+            src:board[startX][startY],
+            dst:board[endX][endY]
         },()=>{
             this.setState({
                 ...this.state,
                 cellsLoaded:true,
-                cells:cells
+                cells:cells,
+                setters:{start:{x:this.state.src.i,y:this.state.src.j,settter:this.setSrc},end:{x:this.state.dst.i,y:this.state.dst.j,setter:this.setDst}}
             });
         });
     }
     tdClickHandler=(key)=>{
-        if(key===this.state.src.key || key===this.state.dst.key) return;
+        if(key===this.state.src.key || key===this.state.dst.key || this.state.disableAll==true) return;
         let cellState=this.state.cells[key].state;
         this.setState(prevState => {
             let state = Object.assign({}, prevState);  // creating copy of state variable jasper
@@ -53,6 +59,17 @@ export default class Grid extends Component{
         if(cellState!==OBSTRUCTION) document.getElementById(key).className=cssClasses.obstruction;
         else document.getElementById(key).className=cssClasses.unvisited;
     }
+    setSrc=(i,j)=>{
+        let prevKey=this.state.src.key;
+        this.setState({
+            ...this.state,
+            src:this.state.cells[i+'-'+j],
+        });
+    }
+    setDst=(i,j)=>{
+        let prevKey=this.state.dst.key;
+        this.setState({dst:this.state.cells[i+'-'+j]});
+    }
     componentWillReceiveProps(nextProps) {
         console.log('^^^^^^^^^%^^^^^^^^^^^^^^^^^^^^^^^^^');
         this.setState({title: nextProps.title})
@@ -62,12 +79,15 @@ export default class Grid extends Component{
     {
         return (
             <div>
-        <Toolbar algorithms={this.state.algorithms} mazes={this.state.mazes} mazeHandler={this.selectMazeHandler} algorithmHandler={this.selectAlgorithmHandler} />
-        <Legend />
+                <NavigationBar />
         <div className="card card-block">
+
             <h4 className="card-title"><b>title</b></h4>
 
             <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <Toolbar disableAll={this.state.disableAll} setStart={this.setSrc} setEnd={this.setDst} currentAlgorithm={this.state.currentAlgorithm} algorithms={this.state.algorithms} mazes={this.state.mazes} mazeHandler={this.selectMazeHandler} algorithmHandler={this.selectAlgorithmHandler} />
+            <Legend />
+
             <div className="flex-row">
             <table align='center'>
                 <thead>
@@ -107,6 +127,7 @@ export default class Grid extends Component{
 
 
     selectAlgorithmHandler=(key)=>{
+        alert(key);
         this.setState({
             ...this.state,
             currentAlgorithm:this.state.algorithms[key],
@@ -162,6 +183,7 @@ export default class Grid extends Component{
         
     getRecursieMaze=()=>
     {
+        this.setState({disableAll:true});
         let currentCell;
         this.clearBoardHandler(false);
         let board=JSON.parse(JSON.stringify(this.state.cells));
@@ -177,7 +199,8 @@ export default class Grid extends Component{
                     cells:board,
                     src:board[this.state.src.key],
                     dst:board[this.state.dst.key],
-                    grid:grid
+                    grid:grid,
+                    disableAll:false
                 },()=>{});
                  
                 clearInterval(inter);
@@ -191,6 +214,7 @@ export default class Grid extends Component{
 
     }
     getDFSMaze=()=>{
+        this.setState({disableAll:true});
         let currentCell;
         this.clearBoardHandler(false);
         let board=JSON.parse(JSON.stringify(this.state.cells));
@@ -206,7 +230,8 @@ export default class Grid extends Component{
                     cells:board,
                     src:board[this.state.src.key],
                     dst:board[this.state.dst.key],
-                    grid:grid
+                    grid:grid,
+                    disableAll:false
                 },()=>{});
                  
                 clearInterval(inter);
@@ -219,6 +244,7 @@ export default class Grid extends Component{
         },100);
     }
     bfs=()=>{
+        this.setState({disableAll:true});
         this.clearBoardHandler(true);
         let board=JSON.parse(JSON.stringify(this.state.cells));
         let src=board[this.state.src.key];
@@ -246,6 +272,7 @@ export default class Grid extends Component{
                 //     dst:board[dst.key],
                 //     grid:grid
                 // },afterUpdate);
+                this.setState({disableAll:false});
                 clearInterval(inter);
             }
             else if(visualQueue.length!==0)
@@ -264,6 +291,7 @@ export default class Grid extends Component{
     }
 
     dfs=()=>{
+        this.setState({disableAll:true});
         this.clearBoardHandler(true);
         let board=JSON.parse(JSON.stringify(this.state.cells));
         let src=board[this.state.src.key];
@@ -291,6 +319,7 @@ export default class Grid extends Component{
                 //     dst:board[dst.key],
                 //     grid:grid
                 // },afterUpdate);
+                this.setState({disableAll:false});
                 clearInterval(inter);
             }
             else if(visualQueue.length!==0)

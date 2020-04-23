@@ -5,5 +5,8 @@ const VISITING=3;
 const PATH=4
 const MAX_ROW=20;
 const MAX_COLUMN=50;
-
-export { UNVISITED, VISITED, VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW,PATH }
+const startX=10;
+const startY=15;
+const endX=18;
+const endY=23
+export { UNVISITED, VISITED, VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW,PATH,startX,startY,endX,endY}
