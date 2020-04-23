@@ -6,9 +6,10 @@ import Legend from '../Legend/Legend';
 import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW,startX,startY,endX,endY } from './GRID_CONSTANTS';
 import { breadthFirstSearch } from '../algorithms/bfs';
 import { depthFirstSearch } from '../algorithms/dfs';
+import { dijkstraSearch } from '../algorithms/dijkstraSearch';
 import { recursiveMaze } from '../algorithms/recursiveMaze';
 import { dfsMaze } from '../algorithms/dfsMaze';
-import { createBoard,createClearedBoard } from './Helper';
+import { createBoard,createWeightBoard } from './Helper';
 export default class Grid extends Component{
     constructor(props){
         super(props);
@@ -19,6 +20,8 @@ export default class Grid extends Component{
         algorithms:['BST','DFS','A*','Dijkstra'],
         mazes:['DFS Maze','B','Random Recursion'],
         cellsLoaded:false,
+
+        weightsSet:false
 
     };
     }
@@ -36,8 +39,8 @@ export default class Grid extends Component{
             ...this.state,
             grid:board,
             cells:cells,
-            src:board[startX][startY],
-            dst:board[endX][endY]
+            src:board[startY][startX],
+            dst:board[endY][endX]
         },()=>{
             this.setState({
                 ...this.state,
@@ -95,14 +98,14 @@ export default class Grid extends Component{
                 </tr>
                 </thead>
                 <tbody>
-                    {this.state.cellsLoaded?this.state.grid.map((row,index)=>{
+                    {this.state.cellsLoaded?this.state.grid.map((row,rIndex)=>{
                         return (
-                            <tr key={index}>
-                            {row.map((cell,index)=>{
+                            <tr key={rIndex}>
+                            {row.map((cell,cIndex)=>{
                                 return (
                                 <td id={cell.key} key={cell.key} className={cell.state===UNVISITED?cssClasses.unvisited:cell.state===VISITED?cssClasses.visited:cell.state===OBSTRUCTION?cssClasses.obstruction:cell.state==PATH?cssClasses.path:null } onMouseDownCapture={this.tdClickHandler.bind(this,cell.key)}  onDrag={this.tdClickHandler.bind(this,cell.key)}>
-                                    {this.state.src.key===cell.key?<i className="fas fa-female"></i>:null}
-                                    {this.state.dst.key===cell.key?<i className="fa fa-flag"  aria-hidden="true"></i>:null}</td>
+                                    {this.state.src.key===cell.key?<i className="fas fa-female"></i>:this.state.dst.key===cell.key?<i className="fa fa-flag"  aria-hidden="true"></i>:this.state.weightsSet?this.state.weightBoard[rIndex][cIndex]:null}
+                                    </td>
                                 )
                             })}
 
@@ -116,6 +119,9 @@ export default class Grid extends Component{
             <button className='btn' onClick={this.getRecursieMaze}>recursiveMaze</button>
             <button className='btn' onClick={this.getDFSMaze}>DFSMaze</button>
             <button className='btn' onClick={this.dfs}>DFS</button>
+            <button className='btn' onClick={this.createWeights}>Set Weights</button>
+            <button className='btn' onClick={this.destroyWeights}>Remove Weights</button>
+            <button className='btn' onClick={this.dijstra}>dijkstra</button>
             <br></br>
             <textarea id='testingTextArea'></textarea>
                 </div>
@@ -256,22 +262,10 @@ export default class Grid extends Component{
         grid=JSON.parse(JSON.stringify(result[2]));
         //let stateCells=visualQueue.concat(path);
         let afterUpdate=()=>{
-            // console.log('src',src);
-            // console.log('dst',dst);
-            // console.log('board',board);
-            // console.log('state',this.state);
-            // console.log('grid',grid);
         }
         var inter=setInterval(()=>{
             if(visualQueue.length===0 && path.length===0) 
             {
-                // this.setState({
-                //     ...this.state,
-                //     cells:board,
-                //     src:board[src.key],
-                //     dst:board[dst.key],
-                //     grid:grid
-                // },afterUpdate);
                 this.setState({disableAll:false});
                 clearInterval(inter);
             }
@@ -303,22 +297,10 @@ export default class Grid extends Component{
         grid=JSON.parse(JSON.stringify(result[2]));
         //let stateCells=visualQueue.concat(path);
         let afterUpdate=()=>{
-            // console.log('src',src);
-            // console.log('dst',dst);
-            // console.log('board',board);
-            // console.log('state',this.state);
-            // console.log('grid',grid);
         }
         var inter=setInterval(()=>{
             if(visualQueue.length===0 && path.length===0) 
             {
-                // this.setState({
-                //     ...this.state,
-                //     cells:board,
-                //     src:board[src.key],
-                //     dst:board[dst.key],
-                //     grid:grid
-                // },afterUpdate);
                 this.setState({disableAll:false});
                 clearInterval(inter);
             }
@@ -336,7 +318,55 @@ export default class Grid extends Component{
             }
         },100);
     }
+    createWeights=()=>{
+        let weightBoard=createWeightBoard();
+        this.setState({
+            weightsSet:true,
+            weightBoard:weightBoard
+        });
+    }
+    destroyWeights=()=>{
+        this.setState({
+            weightsSet:false,
+            weightBoard:null
+        });
+    }
+    dijstra=()=>{
+        this.setState({disableAll:true});
+        this.clearBoardHandler(true);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let src=board[this.state.src.key];
+        let dst=board[this.state.dst.key];
+        let weights=this.state.weightBoard
+        let currentCell,visualQueue,path,grid;
+        let result=dijkstraSearch(src,board,dst,weights);
+        visualQueue=JSON.parse(JSON.stringify(result[0]));
+        path=JSON.parse(JSON.stringify(result[1]));
+        grid=JSON.parse(JSON.stringify(result[2]));
+        //let stateCells=visualQueue.concat(path);
+        let afterUpdate=()=>{
+        }
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0 && path.length===0) 
+            {
+                this.setState({disableAll:false});
+                clearInterval(inter);
+            }
+            else if(visualQueue.length!==0)
+            {
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.visited;
+            }
+            else
+            {
+                currentCell=board[path.pop()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.path;
+            }
+        },100);
 
+    }
 
 
 

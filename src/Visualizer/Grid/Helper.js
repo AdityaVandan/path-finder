@@ -26,6 +26,40 @@ export function createBoard()
     }
     return [board,cells];
 }
+
+export function createWeightBoard(){
+    let weightBoard=[];
+    let row,x;
+    for(let i=0;i<MAX_ROW;i++)
+    {
+        row=[];
+        for(let j=0;j<MAX_COLUMN;j++)
+        {
+            x=Math.floor(Math.random()*100)%20;
+            row.push(x);
+        }
+        weightBoard.push(row);
+    }
+    return weightBoard;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export function createClearedBoard(leaveObstruction,prevBoard){
     let board=[];
     let cells={};

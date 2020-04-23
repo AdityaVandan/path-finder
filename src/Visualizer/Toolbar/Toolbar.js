@@ -39,11 +39,11 @@ export default class Toolbar extends Component{
         alert('Please enter a valid x/y coordinate');
         return;
       }
-      if(startX.value<0 || startY.value>=MAX_ROW){
+      if(startX.value<0 || startX.value>=MAX_COLUMN || startY.value<0 || startY.value>=MAX_ROW){
         alert('index out of bounds. Please put a valid index');
         return;
       }
-      this.props.setStart(startX.value,startY.value);
+      this.props.setStart(startY.value,startX.value);
     }
     setEnd=()=>{
       let endX=document.getElementById('endX');
@@ -52,11 +52,11 @@ export default class Toolbar extends Component{
         alert('Please enter a valid x/y coordinate');
         return;
       }
-      if(endX.value<0 || endY.value>=MAX_COLUMN){
+      if(endX.value<0 || endX.value>=MAX_COLUMN || endY.value<0 || endY.value>=MAX_ROW){
         alert('index out of bounds. Please put a valid index');
         return;
       }
-      this.props.setEnd(endX.value,endY.value);
+      this.props.setEnd(endY.value,endX.value);
     }
     render()
     {
