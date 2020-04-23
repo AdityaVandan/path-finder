@@ -122,6 +122,7 @@ export default class Grid extends Component{
             <button className='btn' onClick={this.createWeights}>Set Weights</button>
             <button className='btn' onClick={this.destroyWeights}>Remove Weights</button>
             <button className='btn' onClick={this.dijstra}>dijkstra</button>
+            <button className='btn' onClick={this.aStar}>A*</button>
             <br></br>
             <textarea id='testingTextArea'></textarea>
                 </div>
@@ -365,9 +366,77 @@ export default class Grid extends Component{
                 document.getElementById(currentCell.key).className=cssClasses.path;
             }
         },100);
+    }
+    aStar=()=>{
+
+        this.setState({disableAll:true});
+        this.clearBoardHandler(true);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let src=board[this.state.src.key];
+        let dst=board[this.state.dst.key];
+        let weights=this.state.weightBoard
+        let currentCell,visualQueue,path,grid;
+
+        let heuristic,row;
+        heuristic=[];
+        for(var r=0;r<MAX_ROW;r++){
+            row=[];
+            for(var c=0;c<MAX_COLUMN;c++){
+                row.push(Math.abs(r-dst.i)+Math.abs(c-dst.j)+weights[r][c]);
+            }
+            heuristic.push(row);
+        }
+
+        let result=dijkstraSearch(src,board,dst,heuristic);
+        visualQueue=JSON.parse(JSON.stringify(result[0]));
+        path=JSON.parse(JSON.stringify(result[1]));
+        grid=JSON.parse(JSON.stringify(result[2]));
+        //let stateCells=visualQueue.concat(path);
+        let afterUpdate=()=>{
+        }
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0 && path.length===0) 
+            {
+                this.setState({disableAll:false});
+                clearInterval(inter);
+            }
+            else if(visualQueue.length!==0)
+            {
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.visited;
+            }
+            else
+            {
+                currentCell=board[path.pop()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.path;
+            }
+        },100);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // this.setState({
+        //     ...this.state,
+        //     weightsSet:true,
+        //     weightBoard:heuristic
+        // });
 
     }
-
 
 
 
