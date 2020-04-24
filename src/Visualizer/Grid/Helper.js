@@ -35,7 +35,7 @@ export function createWeightBoard(){
         row=[];
         for(let j=0;j<MAX_COLUMN;j++)
         {
-            x=Math.floor(Math.random()*100)%20;
+            x=Math.floor(Math.random()*10)%10;
             row.push(x);
         }
         weightBoard.push(row);

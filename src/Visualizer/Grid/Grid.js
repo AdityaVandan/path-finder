@@ -7,6 +7,7 @@ import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW,startX,s
 import { breadthFirstSearch } from '../algorithms/bfs';
 import { depthFirstSearch } from '../algorithms/dfs';
 import { dijkstraSearch } from '../algorithms/dijkstraSearch';
+import { bestFirstSearch } from '../algorithms/bestFirstSearch'
 import { recursiveMaze } from '../algorithms/recursiveMaze';
 import { dfsMaze } from '../algorithms/dfsMaze';
 import { createBoard,createWeightBoard } from './Helper';
@@ -64,6 +65,11 @@ export default class Grid extends Component{
     }
     setSrc=(i,j)=>{
         let prevKey=this.state.src.key;
+        if(this.state.grid[i][j].state===OBSTRUCTION)
+        {
+            alert('Cannot place Start here as there is an obstruction, please remove the obstruction first by clicking on the obstructed cell and try again');
+            return;
+        }
         this.setState({
             ...this.state,
             src:this.state.cells[i+'-'+j],
@@ -71,6 +77,11 @@ export default class Grid extends Component{
     }
     setDst=(i,j)=>{
         let prevKey=this.state.dst.key;
+        if(this.state.grid[i][j].state===OBSTRUCTION)
+        {
+            alert('Cannot place End here as there is an obstruction, please remove the obstruction first by clicking on the obstructed cell and try again');
+            return;
+        }
         this.setState({dst:this.state.cells[i+'-'+j]});
     }
     componentWillReceiveProps(nextProps) {
@@ -123,6 +134,7 @@ export default class Grid extends Component{
             <button className='btn' onClick={this.destroyWeights}>Remove Weights</button>
             <button className='btn' onClick={this.dijstra}>dijkstra</button>
             <button className='btn' onClick={this.aStar}>A*</button>
+            <button className='btn' onClick={this.greedyBFS}>Greedy BFS</button>
             <br></br>
             <textarea id='testingTextArea'></textarea>
                 </div>
@@ -374,20 +386,25 @@ export default class Grid extends Component{
         let board=JSON.parse(JSON.stringify(this.state.cells));
         let src=board[this.state.src.key];
         let dst=board[this.state.dst.key];
-        let weights=this.state.weightBoard
         let currentCell,visualQueue,path,grid;
-
         let heuristic,row;
+        let result;
         heuristic=[];
         for(var r=0;r<MAX_ROW;r++){
-            row=[];
-            for(var c=0;c<MAX_COLUMN;c++){
-                row.push(Math.abs(r-dst.i)+Math.abs(c-dst.j)+weights[r][c]);
-            }
+            row=[];            //f(a)=g(a)+h(a)  //destination heuristics                    //source heuristics 
+            for(var c=0;c<MAX_COLUMN;c++) row.push(Math.abs(r-dst.i)+Math.abs(c-dst.j)         +Math.abs(r-src.i)+Math.abs(c-src.j)/2        ); //manhatten distance
             heuristic.push(row);
         }
+        if(this.state.weightsSet)
+        {
+            let weights=this.state.weightBoard;
+            for(var r=0;r<MAX_ROW;r++){
+            for(var c=0;c<MAX_COLUMN;c++) heuristic[r][c]+=weights[r][c] //manhatten distance
+        }
+        result=dijkstraSearch(src,board,dst,heuristic);
+        }
+        else result=bestFirstSearch(src,board,dst,heuristic);
 
-        let result=dijkstraSearch(src,board,dst,heuristic);
         visualQueue=JSON.parse(JSON.stringify(result[0]));
         path=JSON.parse(JSON.stringify(result[1]));
         grid=JSON.parse(JSON.stringify(result[2]));
@@ -413,31 +430,68 @@ export default class Grid extends Component{
                 document.getElementById(currentCell.key).className=cssClasses.path;
             }
         },100);
+    }
+    greedyBFS=()=>{
+
+        this.setState({disableAll:true});
+        this.clearBoardHandler(true);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let src=board[this.state.src.key];
+        let dst=board[this.state.dst.key];
+        let currentCell,visualQueue,path,grid;
+        let result;
+        let heuristic,row;
+        heuristic=[];
+        for(var r=0;r<MAX_ROW;r++){
+            row=[];
+            for(var c=0;c<MAX_COLUMN;c++){ //f(a)=h(a)
+                row.push(Math.abs(r-dst.i)+Math.abs(c-dst.j)); //manhatten distance
+            }
+            heuristic.push(row);
+        }
+        if(this.state.weightsSet){
+            let weights=this.state.weightBoard
+            for(var r=0;r<MAX_ROW;r++){
+                for(var c=0;c<MAX_COLUMN;c++){ //f(a)=h(a)
+                    heuristic[r][c]+=weights[r][c];   //manhatten distance
+                }
+                heuristic.push(row);
+            }
+            result=dijkstraSearch(src,board,dst,heuristic);
+        }
+        else result=bestFirstSearch(src,board,dst,heuristic);
+        visualQueue=JSON.parse(JSON.stringify(result[0]));
+        path=JSON.parse(JSON.stringify(result[1]));
+        grid=JSON.parse(JSON.stringify(result[2]));
+        //let stateCells=visualQueue.concat(path);
+        let afterUpdate=()=>{
+        }
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0 && path.length===0) 
+            {
+                this.setState({disableAll:false});
+                clearInterval(inter);
+            }
+            else if(visualQueue.length!==0)
+            {
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.visited;
+            }
+            else
+            {
+                currentCell=board[path.pop()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.path;
+            }
+        },100);
+        
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // this.setState({
-        //     ...this.state,
-        //     weightsSet:true,
-        //     weightBoard:heuristic
-        // });
 
     }
-
 
 
 }
