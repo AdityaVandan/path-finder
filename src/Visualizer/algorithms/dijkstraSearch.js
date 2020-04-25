@@ -4,9 +4,9 @@ import { getGrid } from './Utility/utility';
 export function dijkstraSearch(src,board,dst,weightsBoard)
 {
 const pq=new PriorityQueue((a,b)=>{return a[0]<b[0]});
-console.log('src',src);
-console.log('dst',dst);
-console.log('board',board);
+// console.log('src',src);
+// console.log('dst',dst);
+// console.log('board',board);
 let currentCell,i,j,hashKey,pathWeight,weight;
 let visualQueue=[];
 let previous={};
@@ -20,9 +20,9 @@ let grid=getGrid(board);
 let neighbour;
 let r=[-1,0,1,0]; //x,y x-1,y x+1,y x,y-1 x,y+1
 let c=[0,-1,0,1];
-console.log('src:',src);
-console.log('dst:',dst);
-console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+// console.log('src:',src);
+// console.log('dst:',dst);
+// console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
 pq.push([0,src]);
 
 

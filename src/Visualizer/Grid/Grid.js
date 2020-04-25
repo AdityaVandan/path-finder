@@ -610,12 +610,12 @@ export default class Grid extends Component{
         }
         if(this.state.weightsSet)
         {
+            let weights=this.state.weightBoard;
             for(var r=0;r<MAX_ROW;r++){
                 //row=[];            //f(a)=g(a)+h(a)  //destination heuristics                    //source heuristics 
                 for(var c=0;c<MAX_COLUMN;c++) heuristic[r][c]+=weights[r][c]; //manhatten distance
                 //heuristic.push(row);
             }    
-            let weights=this.state.weightBoard
             result=dijkstraSearch(src,board,dst,heuristic);
         }
         else result=dijkstraSearch(src,board,dst,heuristic);

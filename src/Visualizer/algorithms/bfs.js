@@ -1,9 +1,9 @@
 import { VISITED,OBSTRUCTION,UNVISITED,PATH, MAX_COLUMN, MAX_ROW } from './GRAPH_CONSTANTS';
 export function breadthFirstSearch(src,board,dst)
 {
-    console.log('src',src);
-    console.log('dst',dst);
-    console.log('board',board);
+    // console.log('src',src);
+    // console.log('dst',dst);
+    // console.log('board',board);
     let currentCell,i,j,hashKey;
     let queue=[];
     let visualQueue=[];
@@ -11,9 +11,9 @@ export function breadthFirstSearch(src,board,dst)
     let result=[];
     let r=[-1,0,1,0]; //x,y x-1,y x+1,y x,y-1 x,y+1
     let c=[0,-1,0,1];
-    console.log('src:',src);
-    console.log('dst:',dst);
-    console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+    // console.log('src:',src);
+    // console.log('dst:',dst);
+    // console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
     queue.push(src);
     while(queue.length!=0)
     {
@@ -49,7 +49,7 @@ export function breadthFirstSearch(src,board,dst)
             path.push(node);
             board[node].state=PATH;
             node=previous[node];
-            console.log(node);
+            // console.log(node);
             if(node===src.key)
             {
                 path.push(node);
@@ -61,8 +61,8 @@ export function breadthFirstSearch(src,board,dst)
     }
     let grid=getGrid(board);
     result=[visualQueue,path,grid];
-    console.log('path',path);
-    console.log('visualQueue',visualQueue);
+    // console.log('path',path);
+    // console.log('visualQueue',visualQueue);
     return result;
 }
 function getGrid(board)
