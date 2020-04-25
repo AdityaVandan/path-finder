@@ -3,13 +3,16 @@ import cssClasses from './Grid.module.css';
 import NavigationBar from '../NavigationBar/NavigationBar';
 import Toolbar from '../Toolbar/Toolbar';
 import Legend from '../Legend/Legend';
-import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW,startX,startY,endX,endY } from './GRID_CONSTANTS';
+import { UNVISITED,VISITED,PATH,VISITING,OBSTRUCTION,MAX_COLUMN,MAX_ROW,startX,startY,endX,endY,MAZE_SPEED,SEARCH_SPEED } from './GRID_CONSTANTS';
 import { breadthFirstSearch } from '../algorithms/bfs';
 import { depthFirstSearch } from '../algorithms/dfs';
 import { dijkstraSearch } from '../algorithms/dijkstraSearch';
-import { bestFirstSearch } from '../algorithms/bestFirstSearch'
+import { bestFirstSearch } from '../algorithms/bestFirstSearch';
+import { bestFirstSearchWeighted } from '../algorithms/bestFirstSearchWeighted';
+import { recursiveDivisonMaze } from '../algorithms/recursiveDivisionMaze';
 import { recursiveMaze } from '../algorithms/recursiveMaze';
 import { dfsMaze } from '../algorithms/dfsMaze';
+import { randomObstructionMaze } from '../algorithms/randomObstructionMaze';
 import { createBoard,createWeightBoard } from './Helper';
 export default class Grid extends Component{
     constructor(props){
@@ -127,12 +130,15 @@ export default class Grid extends Component{
             </table>
             <div>cfsd<button className="btn" onClick={this.bfs}>Breadth First Search</button>
             <button className='btn' onClick={this.clearBoardHandler.bind(this,false)}>clear</button>
-            <button className='btn' onClick={this.getRecursieMaze}>recursiveMaze</button>
+            <button className='btn' onClick={this.getRecursiveMaze}>recursiveMaze</button>
+            <button className='btn' onClick={this.getRandomObstructionMaze}>randomObstructionMaze</button>
             <button className='btn' onClick={this.getDFSMaze}>DFSMaze</button>
+            <button className='btn' onClick={this.getRecursiveDivisionMaze}>recursiveDivisionMaze</button>
             <button className='btn' onClick={this.dfs}>DFS</button>
             <button className='btn' onClick={this.createWeights}>Set Weights</button>
             <button className='btn' onClick={this.destroyWeights}>Remove Weights</button>
             <button className='btn' onClick={this.dijstra}>dijkstra</button>
+            <button className='btn' onClick={this.swarm}>swarm</button>
             <button className='btn' onClick={this.aStar}>A*</button>
             <button className='btn' onClick={this.greedyBFS}>Greedy BFS</button>
             <br></br>
@@ -200,7 +206,7 @@ export default class Grid extends Component{
             }
         }
         
-    getRecursieMaze=()=>
+    getRecursiveMaze=()=>
     {
         this.setState({disableAll:true});
         let currentCell;
@@ -229,9 +235,80 @@ export default class Grid extends Component{
                 //this.setState(updateState,afterUpdate);
                 document.getElementById(currentCell.key).className=cssClasses.obstruction;
             }
-        },100);
+        },MAZE_SPEED);
 
     }
+
+    getRandomObstructionMaze=()=>
+    {
+        this.setState({disableAll:true});
+        let currentCell;
+        this.clearBoardHandler(false);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let result=randomObstructionMaze(board,this.state.src,this.state.dst);
+        board=result[0];
+        let visualQueue=result[1];
+        let grid=result[2];
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0)
+            {
+               this.setState({
+                    ...this.state,
+                    cells:board,
+                    src:board[this.state.src.key],
+                    dst:board[this.state.dst.key],
+                    grid:grid,
+                    disableAll:false
+                },()=>{});
+                 
+                clearInterval(inter);
+            }
+            else{
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.obstruction;
+            }
+        },MAZE_SPEED);
+
+    }
+
+    getRecursiveDivisionMaze=()=>
+    {
+        this.setState({disableAll:true});
+        let currentCell;
+        this.clearBoardHandler(false);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let result=recursiveDivisonMaze(board,this.state.src,this.state.dst);
+        board=result[0];
+        let visualQueue=result[1];
+        let grid=result[2];
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0)
+            {
+               this.setState({
+                    ...this.state,
+                    cells:board,
+                    src:board[this.state.src.key],
+                    dst:board[this.state.dst.key],
+                    grid:grid,
+                    disableAll:false
+                },()=>{});
+                 
+                clearInterval(inter);
+            }
+            else{
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.obstruction;
+            }
+        },MAZE_SPEED);
+
+    }
+
+
+
+
+
     getDFSMaze=()=>{
         this.setState({disableAll:true});
         let currentCell;
@@ -260,7 +337,7 @@ export default class Grid extends Component{
                 //this.setState(updateState,afterUpdate);
                 document.getElementById(currentCell.key).className=cssClasses.obstruction;
             }
-        },100);
+        },MAZE_SPEED);
     }
     bfs=()=>{
         this.setState({disableAll:true});
@@ -294,7 +371,7 @@ export default class Grid extends Component{
                 //this.setState(updateState,afterUpdate);
                 document.getElementById(currentCell.key).className=cssClasses.path;
             }
-        },100);
+        },SEARCH_SPEED);
     }
 
     dfs=()=>{
@@ -329,7 +406,7 @@ export default class Grid extends Component{
                 //this.setState(updateState,afterUpdate);
                 document.getElementById(currentCell.key).className=cssClasses.path;
             }
-        },100);
+        },SEARCH_SPEED);
     }
     createWeights=()=>{
         let weightBoard=createWeightBoard();
@@ -377,7 +454,7 @@ export default class Grid extends Component{
                 //this.setState(updateState,afterUpdate);
                 document.getElementById(currentCell.key).className=cssClasses.path;
             }
-        },100);
+        },SEARCH_SPEED);
     }
     aStar=()=>{
 
@@ -397,11 +474,8 @@ export default class Grid extends Component{
         }
         if(this.state.weightsSet)
         {
-            let weights=this.state.weightBoard;
-            for(var r=0;r<MAX_ROW;r++){
-            for(var c=0;c<MAX_COLUMN;c++) heuristic[r][c]+=weights[r][c] //manhatten distance
-        }
-        result=dijkstraSearch(src,board,dst,heuristic);
+            let weights=this.state.weightBoard
+            result=bestFirstSearchWeighted(src,board,dst,heuristic,weights);
         }
         else result=bestFirstSearch(src,board,dst,heuristic);
 
@@ -429,7 +503,7 @@ export default class Grid extends Component{
                 //this.setState(updateState,afterUpdate);
                 document.getElementById(currentCell.key).className=cssClasses.path;
             }
-        },100);
+        },SEARCH_SPEED);
     }
     greedyBFS=()=>{
 
@@ -451,13 +525,7 @@ export default class Grid extends Component{
         }
         if(this.state.weightsSet){
             let weights=this.state.weightBoard
-            for(var r=0;r<MAX_ROW;r++){
-                for(var c=0;c<MAX_COLUMN;c++){ //f(a)=h(a)
-                    heuristic[r][c]+=weights[r][c];   //manhatten distance
-                }
-                heuristic.push(row);
-            }
-            result=dijkstraSearch(src,board,dst,heuristic);
+            result=bestFirstSearchWeighted(src,board,dst,heuristic,weights);
         }
         else result=bestFirstSearch(src,board,dst,heuristic);
         visualQueue=JSON.parse(JSON.stringify(result[0]));
@@ -484,14 +552,67 @@ export default class Grid extends Component{
                 //this.setState(updateState,afterUpdate);
                 document.getElementById(currentCell.key).className=cssClasses.path;
             }
-        },100);
-        
-
-
-
-
+        },SEARCH_SPEED);
 
     }
+
+    swarm=()=>{
+
+        this.setState({disableAll:true});
+        this.clearBoardHandler(true);
+        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let src=board[this.state.src.key];
+        let dst=board[this.state.dst.key];
+        let currentCell,visualQueue,path,grid;
+        let heuristic,row;
+        let result;
+        heuristic=[];
+        for(var r=0;r<MAX_ROW;r++){
+            row=[];            //f(a)=g(a)+h(a)  //destination heuristics                    //source heuristics 
+            for(var c=0;c<MAX_COLUMN;c++) row.push(Math.abs(r-dst.i)+Math.abs(c-dst.j)         +Math.abs(r-src.i)+Math.abs(c-src.j)/2        ); //manhatten distance
+            heuristic.push(row);
+        }
+        if(this.state.weightsSet)
+        {
+            for(var r=0;r<MAX_ROW;r++){
+                //row=[];            //f(a)=g(a)+h(a)  //destination heuristics                    //source heuristics 
+                for(var c=0;c<MAX_COLUMN;c++) heuristic[r][c]+=weights[r][c]; //manhatten distance
+                //heuristic.push(row);
+            }    
+            let weights=this.state.weightBoard
+            result=dijkstraSearch(src,board,dst,heuristic);
+        }
+        else result=dijkstraSearch(src,board,dst,heuristic);
+
+        visualQueue=JSON.parse(JSON.stringify(result[0]));
+        path=JSON.parse(JSON.stringify(result[1]));
+        grid=JSON.parse(JSON.stringify(result[2]));
+        //let stateCells=visualQueue.concat(path);
+        let afterUpdate=()=>{
+        }
+        var inter=setInterval(()=>{
+            if(visualQueue.length===0 && path.length===0) 
+            {
+                this.setState({disableAll:false});
+                clearInterval(inter);
+            }
+            else if(visualQueue.length!==0)
+            {
+                currentCell=board[visualQueue.shift()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.visited;
+            }
+            else
+            {
+                currentCell=board[path.pop()];
+                //this.setState(updateState,afterUpdate);
+                document.getElementById(currentCell.key).className=cssClasses.path;
+            }
+        },SEARCH_SPEED);
+    }
+
+
+
 
 
 }

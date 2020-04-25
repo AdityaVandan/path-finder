@@ -1,4 +1,4 @@
-import { VISITED,OBSTRUCTION,UNVISITED, MAX_COLUMN,MAX_ROW } from './GRAPH_CONSTANTS';
+import { VISITED,OBSTRUCTION,UNVISITED, MAX_COLUMN,MAX_ROW, MAZE } from './GRAPH_CONSTANTS';
 export function dfsMaze(board,src,dst)
 {
 let grid=getGrid(board);
@@ -6,7 +6,7 @@ let visited=generateVisited();
 let visualQueue;
 //visited[src.i][src.j]=true;
 //visited[dst.i][dst.j]=true;
-visualQueue=dfs(board,0,0,visited,src,dst);
+visualQueue=dfs(board,MAZE.x,MAZE.y,visited,src,dst);
 let result=[board,visualQueue,grid];
 return result;
 }
