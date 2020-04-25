@@ -105,7 +105,7 @@ export default class Grid extends Component{
             {/* <h4 className="card-title"><b>title</b></h4>
 
             <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> */}
-            <Toolbar toggleWeights={this.toggleWeights} disableAll={this.state.disableAll} setStart={this.setSrc} setEnd={this.setDst} visualize={this.visualizeSelectedAlgorithmHandler} currentAlgorithm={this.state.currentAlgorithm} algorithms={this.state.algorithms} mazes={this.state.mazes} mazeHandler={this.selectMazeHandler} algorithmHandler={this.selectAlgorithmHandler} />
+            <Toolbar clear={this.clearBoardHandler} toggleWeights={this.toggleWeights} disableAll={this.state.disableAll} setStart={this.setSrc} setEnd={this.setDst} visualize={this.visualizeSelectedAlgorithmHandler} currentAlgorithm={this.state.currentAlgorithm} algorithms={this.state.algorithms} mazes={this.state.mazes} mazeHandler={this.selectMazeHandler} algorithmHandler={this.selectAlgorithmHandler} />
             {/* <Legend /> */}
 
             <div className="flex-row">
@@ -132,7 +132,7 @@ export default class Grid extends Component{
                 </tbody>
             </table>
             <div>
-                <h1>Check out more projects on: <i className="fa fa-briefcase" aria-hidden="true"></i> <a href='https://adityavandan.github.io/'>adityavandan.github.io</a> </h1>
+                <h1>Check out more projects on: <i className="fa fa-globe" aria-hidden="true"></i> <a href='https://adityavandan.github.io/'>adityavandan.github.io</a> </h1>
                 </div>
             {/* <div>cfsd<button className="btn" onClick={this.bfs}>Breadth First Search</button>
             <button className='btn' onClick={this.clearBoardHandler.bind(this,false)}>clear</button>

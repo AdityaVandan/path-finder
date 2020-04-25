@@ -84,7 +84,7 @@ export default class Toolbar extends Component{
 
             </div>
 
-            <button type="button" className="btn btn-light bt-lg" disabled={this.props.disableAll}>clear</button>
+            <button type="button" className="btn bt-lg" onClick={this.props.clear.bind(this,false)} disabled={this.props.disableAll}>clear</button>
 
             </div>
 
