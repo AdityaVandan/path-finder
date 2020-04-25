@@ -41,6 +41,11 @@ while(!pq.isEmpty())
         //console.log('grid error',currentCell[1].i+r[a]);
         if(i<0 || i>=MAX_ROW || j<0 || j>=MAX_COLUMN) continue;
         neighbour=grid[currentCell[1].i+r[a]][currentCell[1].j+c[a]];
+        if(!neighbour)
+        {
+          console.log('error:',currentCell[1].i+r[a],currentCell[1].j+c[a]);
+          //continue;
+        }
         if(neighbour.state==VISITED || neighbour.state==OBSTRUCTION) continue;
         pathWeight=currentCell[0]+weightsBoard[neighbour.i][neighbour.j]
         pq.push([pathWeight,neighbour]);
@@ -60,6 +65,7 @@ while(1)
     {
         path.push(node);
         board[node].state=PATH;
+        if(!previous[node]) break;
         node=previous[node][1];
         console.log(node);
         if(node===src.key)
