@@ -210,8 +210,9 @@ export default class Grid extends Component{
     {
         this.setState({disableAll:true});
         let currentCell;
+        let newBoard=createBoard();
         this.clearBoardHandler(false);
-        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let board=newBoard[1];
         let result=recursiveMaze(board,this.state.src,this.state.dst);
         board=result[0];
         let visualQueue=result[1];
@@ -243,8 +244,9 @@ export default class Grid extends Component{
     {
         this.setState({disableAll:true});
         let currentCell;
+        let newBoard=createBoard();
         this.clearBoardHandler(false);
-        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let board=newBoard[1];
         let result=randomObstructionMaze(board,this.state.src,this.state.dst);
         board=result[0];
         let visualQueue=result[1];
@@ -276,8 +278,9 @@ export default class Grid extends Component{
     {
         this.setState({disableAll:true});
         let currentCell;
+        let newBoard=createBoard();
         this.clearBoardHandler(false);
-        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let board=newBoard[1];
         let result=recursiveDivisonMaze(board,this.state.src,this.state.dst);
         board=result[0];
         let visualQueue=result[1];
@@ -312,8 +315,9 @@ export default class Grid extends Component{
     getDFSMaze=()=>{
         this.setState({disableAll:true});
         let currentCell;
+        let newBoard=createBoard();
         this.clearBoardHandler(false);
-        let board=JSON.parse(JSON.stringify(this.state.cells));
+        let board=newBoard[1];
         let result=dfsMaze(board,this.state.src,this.state.dst);
         board=result[0];
         let visualQueue=result[1];
