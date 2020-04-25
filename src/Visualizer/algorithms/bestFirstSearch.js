@@ -16,9 +16,14 @@ export function bestFirstSearch(src,board,dst,heuristics)
     console.log('dst:',dst);
     console.log('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
     queue.push([heuristics[src.i][src.j],src]);
-    while(queue.length!=0)
+    while(!queue.isEmpty())
     {
         z=queue.pop();
+        // if(!z)
+        // {
+        //     console.log(queue.length())
+        //     continue;
+        // }
         console.log(z);
         currentCell=z[1];
         if(currentCell.state===VISITED) continue;
@@ -38,6 +43,7 @@ export function bestFirstSearch(src,board,dst,heuristics)
             hashKey=i+'-'+j;
             if(board[hashKey] && board[hashKey].state===UNVISITED)
             {
+                // console.log('null path error:','previous:'+i+'-'+j,'current:'+hashKey,'cell:'+board[hashKey],'weight'+heuristics[i][j]);
                 queue.push([heuristics[i][j],board[hashKey]]);
                 previous[hashKey]=currentCell.i+'-'+currentCell.j;
             }
