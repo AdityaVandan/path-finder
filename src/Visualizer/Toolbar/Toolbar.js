@@ -65,6 +65,7 @@ export default class Toolbar extends Component{
           <div>
             <div className="btn-group btn-group-toggle" data-toggle="buttons">
             {/* <button type="button" className="btn btn-secondary btn-lg" data-toggle="modal" data-target="#modalPush" disabled={this.props.disableAll}>set start/end</button> */}
+            <a className='btn btn-secondary' target='_blank' href='https://drive.google.com/file/d/1IJjivYSqd0N5jbVHq0qfTJHfsb1HZLjT/view?usp=sharing'><b>Help</b></a>
             <div className="btn-group btn-group-toggle" data-toggle="buttons">
               <button className="btn btn-primary dropdown-toggle mr-4 btn-lg" type="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false" disabled={this.props.disableAll}>Algorithm: {this.props.currentAlgorithm}</button>
@@ -105,29 +106,6 @@ export default class Toolbar extends Component{
         </div>
 
 
-<div className="modal fade" id="modalPush" tabIndex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-  aria-hidden="true">
-  <div className="modal-dialog modal-notify modal-info" role="document">
-
-
-    <div className="modal-content text-center">
-      <div className="modal-header d-flex justify-content-center">
-        <p className="heading">Be always up to date</p>
-      </div>
-
-      <div className="modal-body">
-
-
-        <p>Do you want to receive the push notification about the newest posts?</p>
-
-      </div>
-
-      <div className="modal-footer flex-center">
-        <button type='button' className="btn btn-info" data-dismiss="modal">Done</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 
