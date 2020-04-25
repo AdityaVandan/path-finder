@@ -13,18 +13,19 @@ import { recursiveDivisonMaze } from '../algorithms/recursiveDivisionMaze';
 import { recursiveMaze } from '../algorithms/recursiveMaze';
 import { dfsMaze } from '../algorithms/dfsMaze';
 import { randomObstructionMaze } from '../algorithms/randomObstructionMaze';
-import { createBoard,createWeightBoard } from './Helper';
+import { createBoard,createWeightBoard,createEmptyWeightBoard } from './Helper';
 export default class Grid extends Component{
     constructor(props){
         super(props);
         this.state={title: 'Dummy Algorithm',
         currentAlgorithm:'',
         disableAll:false,
-        currentAlgrithmKey:-1,
-        algorithms:['BST','DFS','A*','Dijkstra'],
-        mazes:['DFS Maze','B','Random Recursion'],
+        currentAlgorithmKey:-1,
+        algorithms:['BFS','DFS','Swarm','Greedy BFS','A*','Dijkstra'],
+        algorithmFunctions:[this.bfs,this.dfs,this.swarm,this.greedyBFS,this.aStar,this.dijstra],
+        mazes:['Recursive Divison','DFS Maze','Random Connection','Random Obstruction'],
+        mazeFunctions:[this.getRecursiveDivisionMaze,this.getDFSMaze,this.getRecursiveMaze,this.getRandomObstructionMaze],
         cellsLoaded:false,
-
         weightsSet:false
 
     };
@@ -77,6 +78,7 @@ export default class Grid extends Component{
             ...this.state,
             src:this.state.cells[i+'-'+j],
         });
+        this.clearBoardHandler(true);
     }
     setDst=(i,j)=>{
         let prevKey=this.state.dst.key;
@@ -86,6 +88,7 @@ export default class Grid extends Component{
             return;
         }
         this.setState({dst:this.state.cells[i+'-'+j]});
+        this.clearBoardHandler(true);
     }
     componentWillReceiveProps(nextProps) {
         console.log('^^^^^^^^^%^^^^^^^^^^^^^^^^^^^^^^^^^');
@@ -99,11 +102,11 @@ export default class Grid extends Component{
                 <NavigationBar />
         <div className="card card-block">
 
-            <h4 className="card-title"><b>title</b></h4>
+            {/* <h4 className="card-title"><b>title</b></h4>
 
-            <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-            <Toolbar disableAll={this.state.disableAll} setStart={this.setSrc} setEnd={this.setDst} currentAlgorithm={this.state.currentAlgorithm} algorithms={this.state.algorithms} mazes={this.state.mazes} mazeHandler={this.selectMazeHandler} algorithmHandler={this.selectAlgorithmHandler} />
-            <Legend />
+            <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> */}
+            <Toolbar toggleWeights={this.toggleWeights} disableAll={this.state.disableAll} setStart={this.setSrc} setEnd={this.setDst} visualize={this.visualizeSelectedAlgorithmHandler} currentAlgorithm={this.state.currentAlgorithm} algorithms={this.state.algorithms} mazes={this.state.mazes} mazeHandler={this.selectMazeHandler} algorithmHandler={this.selectAlgorithmHandler} />
+            {/* <Legend /> */}
 
             <div className="flex-row">
             <table align='center'>
@@ -128,7 +131,10 @@ export default class Grid extends Component{
                     }):<tr><td>Loading</td></tr>}
                 </tbody>
             </table>
-            <div>cfsd<button className="btn" onClick={this.bfs}>Breadth First Search</button>
+            <div>
+                <h1>Check out more projects on: <i className="fa fa-briefcase" aria-hidden="true"></i> <a href='https://adityavandan.github.io/'>adityavandan.github.io</a> </h1>
+                </div>
+            {/* <div>cfsd<button className="btn" onClick={this.bfs}>Breadth First Search</button>
             <button className='btn' onClick={this.clearBoardHandler.bind(this,false)}>clear</button>
             <button className='btn' onClick={this.getRecursiveMaze}>recursiveMaze</button>
             <button className='btn' onClick={this.getRandomObstructionMaze}>randomObstructionMaze</button>
@@ -143,16 +149,22 @@ export default class Grid extends Component{
             <button className='btn' onClick={this.greedyBFS}>Greedy BFS</button>
             <br></br>
             <textarea id='testingTextArea'></textarea>
-                </div>
+                </div> */}
             </div>
         </div>   
         </div>     
         );
     }
 
-
+    visualizeSelectedAlgorithmHandler=()=>{
+        if(this.state.currentAlgorithmKey==-1){
+            alert('please select an algorithm first');
+            return;
+        }
+        this.state.algorithmFunctions[this.state.currentAlgorithmKey]();
+    }
     selectAlgorithmHandler=(key)=>{
-        alert(key);
+        //alert(key);
         this.setState({
             ...this.state,
             currentAlgorithm:this.state.algorithms[key],
@@ -166,6 +178,7 @@ export default class Grid extends Component{
             currentMaze:this.state.mazes[key],
             currentMazeKey:key
         });
+        this.state.mazeFunctions[key]();
     }
     clearBoardHandler=(leaveObstruction)=>{
         let key,grid,cells,row,x;
@@ -412,6 +425,21 @@ export default class Grid extends Component{
             }
         },SEARCH_SPEED);
     }
+    toggleWeights=()=>{
+        if(!this.state.weightsSet){
+            let weightBoard=createWeightBoard();
+            this.setState({
+                weightsSet:true,
+                weightBoard:weightBoard
+            });
+        }
+        else{
+            this.setState({
+                weightsSet:false,
+                weightBoard:null
+            });
+        }  
+    }
     createWeights=()=>{
         let weightBoard=createWeightBoard();
         this.setState({
@@ -431,9 +459,13 @@ export default class Grid extends Component{
         let board=JSON.parse(JSON.stringify(this.state.cells));
         let src=board[this.state.src.key];
         let dst=board[this.state.dst.key];
-        let weights=this.state.weightBoard
+        let weights;
         let currentCell,visualQueue,path,grid;
-        let result=dijkstraSearch(src,board,dst,weights);
+        
+        let result;
+        if(this.state.weightsSet) weights=this.state.weightBoard;            
+        else weights=createEmptyWeightBoard();
+        result=dijkstraSearch(src,board,dst,weights);        
         visualQueue=JSON.parse(JSON.stringify(result[0]));
         path=JSON.parse(JSON.stringify(result[1]));
         grid=JSON.parse(JSON.stringify(result[2]));

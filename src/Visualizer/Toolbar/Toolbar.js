@@ -64,16 +64,15 @@ export default class Toolbar extends Component{
       return (
           <div>
             <div className="btn-group btn-group-toggle" data-toggle="buttons">
-            <button type="button" className="btn btn-secondary" data-toggle="modal" data-target="#modalPush" disabled={this.props.disableAll}>set start/end</button>
+            {/* <button type="button" className="btn btn-secondary btn-lg" data-toggle="modal" data-target="#modalPush" disabled={this.props.disableAll}>set start/end</button> */}
             <div className="btn-group btn-group-toggle" data-toggle="buttons">
-
-              <button className="btn btn-primary dropdown-toggle mr-4" type="button" data-toggle="dropdown"
+              <button className="btn btn-primary dropdown-toggle mr-4 btn-lg" type="button" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false" disabled={this.props.disableAll}>Algorithm: {this.props.currentAlgorithm}</button>
 
             <div className="dropdown-menu">
               {this.props.algorithms.map((algorithm,index)=>{
                 return (
-                  <a className="dropdown-item" key={algorithm+'-'+index} onClick={this.props.algorithmHandler.bind(this,index)}>{algorithm}</a>
+                  <a className="dropdown-item" key={algorithm+'-'+index} style={{color: index%2==0?'blue':'green'}} onClick={this.props.algorithmHandler.bind(this,index)}>{algorithm}</a>
                       
                 )
               })}
@@ -81,23 +80,27 @@ export default class Toolbar extends Component{
 
 
 
+              <button type="button" className="btn btn-success btn-lg" onClick={this.props.visualize} disabled={this.props.disableAll}>Visualize</button>
 
             </div>
+
+            <button type="button" className="btn btn-light bt-lg" disabled={this.props.disableAll}>clear</button>
+
             </div>
-          <button type="button" className="btn btn-success btn-lg" disabled={this.props.disableAll}>Visualize</button>
-          <button type="button" className="btn bt-lg" disabled={this.props.disableAll}>clear</button>
+
 
 
 
           <div className="btn-group" role="group" aria-label="Button group with nested dropdown">
           <div className="btn-group" role="group">
-            <button id="btnGroupDrop1" type="button" className="btn btn-info dropdown-toggle" data-toggle="dropdown"
+            <button id="btnGroupDrop1" type="button" className="btn btn-info dropdown-toggle btn-lg" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false" disabled={this.props.disableAll}>
               Maze algorithms
             </button>
             <div className="dropdown-menu" aria-labelledby="btnGroupDrop1">
-            { this.props.mazes.map((maze,index)=>{return  (<a className="dropdown-item" style={{color: index%2==0?'blue':'green'}} key={maze} onClick={()=>{alert(maze)}}>{maze}</a>)})  }
+            { this.props.mazes.map((maze,index)=>{return  (<a className="dropdown-item" style={{color: index%2==0?'blue':'green'}} key={maze} onClick={this.mazeSelectorHandler.bind(this,index)}>{maze}</a>)})  }
             </div>
+
           </div>
         </div>
 
@@ -167,7 +170,28 @@ export default class Toolbar extends Component{
             <button className='btn' type="button" onClick={this.setEnd} disabled={this.props.disableAll}>set</button>
             </div>
           </div>
+
+          <div className="col">
+            <div className="md-form mt-0">
+            </div>
           </div>
+
+
+          <div className="col">
+            <div className="md-form mt-0">
+            <div className="custom-control custom-switch">
+        <input type="checkbox" className="custom-control-input" id="customSwitches" onClick={this.props.toggleWeights} />
+        <label className="custom-control-label" htmlFor="customSwitches">Weight</label>
+      </div>
+
+            </div>
+          </div>
+
+
+
+          </div>
+
+
 
       </form>
       </div>

@@ -43,6 +43,22 @@ export function createWeightBoard(){
     return weightBoard;
 
 }
+export function createEmptyWeightBoard(){
+    let weightBoard=[];
+    let row,x;
+    for(let i=0;i<MAX_ROW;i++)
+    {
+        row=[];
+        for(let j=0;j<MAX_COLUMN;j++)
+        {
+            x=1;
+            row.push(x);
+        }
+        weightBoard.push(row);
+    }
+    return weightBoard;
+
+}
 
 
 
