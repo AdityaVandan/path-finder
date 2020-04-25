@@ -60,6 +60,7 @@ while(1)
     {
         path.push(node);
         board[node].state=PATH;
+        if(!previous[node]) break;
         node=previous[node][1];
         console.log(node);
         if(node===src.key)

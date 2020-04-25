@@ -57,6 +57,7 @@ export function bestFirstSearch(src,board,dst,heuristics)
         {
             path.push(node);
             board[node].state=PATH;
+            if(!previous[node]) break;
             node=previous[node];
             // console.log(node);
             if(node===src.key)

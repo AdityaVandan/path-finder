@@ -144,7 +144,7 @@ export default class Toolbar extends Component{
           </div>
           <div className="col">
             <div className="md-form mt-0">
-            <input placeholder="y" type="number" id="startY" style={{width:'50px',height:'50px'}} className="form-control" />
+            <input placeholder="y" type="number" id="startY" style={{width:'50px',height:'50px'}} className="form-control" disabled={this.props.disableAll} />
                   <label htmlFor="startY">Start Y</label>
             </div>
           </div>
